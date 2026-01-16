@@ -14,7 +14,7 @@ export default async function handler(req, res) {
     const results = products.map(title => ({
       title,
       price: "Check on Amazon",
-      image: "https://via.placeholder.com/300?text=Amazon+Product",
+      image: "/placeholder.png",
       link: `https://www.amazon.in/s?k=${encodeURIComponent(title)}`,
       indiamartLink: `https://dir.indiamart.com/search.mp?ss=${encodeURIComponent(title)}`,
       similarity: "N/A"
