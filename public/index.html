@@ -18,9 +18,13 @@
       padding: 6px;
       margin: 4px 0;
     }
+    select {
+      padding: 6px;
+      margin-right: 8px;
+    }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 15px;
       margin-top: 15px;
     }
@@ -39,11 +43,18 @@
       margin-top: 6px;
       font-weight: bold;
     }
+    .loss {
+      color: red;
+    }
+    .gain {
+      color: green;
+    }
   </style>
 </head>
 <body>
 
-<h2>Amazon Top Sellers → IndiaMART Alternatives</h2>
+<h2>Amazon → IndiaMART Product Finder (Real Profit)</h2>
+
 <select id="category">
   <option value="electronics">Electronics</option>
   <option value="home">Home Appliances</option>
@@ -53,7 +64,6 @@
 </select>
 
 <button onclick="load()">🔄 Refresh</button>
-
 
 <div class="grid" id="products"></div>
 
@@ -65,7 +75,6 @@ async function load() {
   try {
     const category = document.getElementById("category").value;
     const res = await fetch(`/api/products?category=${category}`);
-
     const data = await res.json();
 
     box.innerHTML = data.map((p, i) => `
@@ -73,13 +82,25 @@ async function load() {
         <img src="${p.image}">
         <h4>${p.title}</h4>
 
-        <label>Amazon Price (₹)</label>
+        <label>Amazon Selling Price (₹)</label>
         <input type="number" id="sell-${i}" placeholder="e.g. 1999">
 
-        <label>Wholesale Cost (₹)</label>
+        <label>Product Cost (Wholesale) (₹)</label>
         <input type="number" id="cost-${i}" placeholder="e.g. 1200">
 
-        <button onclick="calcProfit(${i})">Calculate Profit</button>
+        <label>Amazon Referral Fee (%)</label>
+        <input type="number" id="ref-${i}" value="15">
+
+        <label>Amazon Closing Fee (₹)</label>
+        <input type="number" id="close-${i}" value="40">
+
+        <label>Shipping / FBA Fee (₹)</label>
+        <input type="number" id="ship-${i}" value="80">
+
+        <label>Other Costs / GST (₹)</label>
+        <input type="number" id="other-${i}" value="0">
+
+        <button onclick="calcProfit(${i})">Calculate Net Profit</button>
 
         <div class="profit" id="profit-${i}"></div>
 
@@ -90,7 +111,7 @@ async function load() {
       </div>
     `).join("");
 
-  } catch (err) {
+  } catch {
     box.innerHTML = "<b style='color:red'>Failed to load products</b>";
   }
 }
@@ -98,18 +119,33 @@ async function load() {
 function calcProfit(i) {
   const sell = Number(document.getElementById(`sell-${i}`).value);
   const cost = Number(document.getElementById(`cost-${i}`).value);
+  const refPercent = Number(document.getElementById(`ref-${i}`).value);
+  const closing = Number(document.getElementById(`close-${i}`).value);
+  const shipping = Number(document.getElementById(`ship-${i}`).value);
+  const other = Number(document.getElementById(`other-${i}`).value);
 
   if (!sell || !cost) {
     document.getElementById(`profit-${i}`).innerText =
-      "Enter both prices";
+      "Enter selling price and product cost";
     return;
   }
 
-  const profit = sell - cost;
+  const referralFee = (sell * refPercent) / 100;
+  const totalCost = cost + referralFee + closing + shipping + other;
+  const profit = sell - totalCost;
   const margin = ((profit / sell) * 100).toFixed(2);
 
-  document.getElementById(`profit-${i}`).innerText =
-    `Profit: ₹${profit} | Margin: ${margin}%`;
+  const profitBox = document.getElementById(`profit-${i}`);
+
+  if (profit >= 0) {
+    profitBox.className = "profit gain";
+    profitBox.innerText =
+      `Net Profit: ₹${profit.toFixed(2)} | Margin: ${margin}%`;
+  } else {
+    profitBox.className = "profit loss";
+    profitBox.innerText =
+      `Loss: ₹${profit.toFixed(2)} | Margin: ${margin}%`;
+  }
 }
 </script>
 
