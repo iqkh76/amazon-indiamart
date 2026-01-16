@@ -44,7 +44,16 @@
 <body>
 
 <h2>Amazon Top Sellers → IndiaMART Alternatives</h2>
+<select id="category">
+  <option value="electronics">Electronics</option>
+  <option value="home">Home Appliances</option>
+  <option value="kitchen">Kitchen</option>
+  <option value="office">Office</option>
+  <option value="fitness">Fitness</option>
+</select>
+
 <button onclick="load()">🔄 Refresh</button>
+
 
 <div class="grid" id="products"></div>
 
@@ -54,7 +63,9 @@ async function load() {
   box.innerHTML = "Loading...";
 
   try {
-    const res = await fetch("/api/products");
+    const category = document.getElementById("category").value;
+    const res = await fetch(`/api/products?category=${category}`);
+
     const data = await res.json();
 
     box.innerHTML = data.map((p, i) => `

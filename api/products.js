@@ -1,15 +1,48 @@
 export default async function handler(req, res) {
   try {
-    const products = [
-      "Bluetooth Earbuds",
-      "Portable Air Cooler",
-      "Electric Kettle",
-      "LED Desk Lamp",
-      "Wireless Power Bank",
-      "Office Chair",
-      "Water Purifier",
-      "Air Fryer"
-    ];
+    const category = (req.query.category || "electronics").toLowerCase();
+
+    const categoryProducts = {
+      electronics: [
+        "Bluetooth Earbuds",
+        "Wireless Power Bank",
+        "Smart Watch",
+        "LED Desk Lamp",
+        "Portable Speaker",
+        "USB Extension Board"
+      ],
+      home: [
+        "Air Fryer",
+        "Electric Kettle",
+        "Water Purifier",
+        "Vacuum Cleaner",
+        "Mixer Grinder",
+        "Room Heater"
+      ],
+      kitchen: [
+        "Induction Cooktop",
+        "Non Stick Cookware Set",
+        "Electric Rice Cooker",
+        "Pressure Cooker",
+        "Kitchen Storage Containers"
+      ],
+      office: [
+        "Office Chair",
+        "Study Table",
+        "Laptop Stand",
+        "Wireless Keyboard Mouse",
+        "Desk Organizer"
+      ],
+      fitness: [
+        "Yoga Mat",
+        "Resistance Bands",
+        "Dumbbells",
+        "Skipping Rope",
+        "Ab Roller"
+      ]
+    };
+
+    const products = categoryProducts[category] || categoryProducts.electronics;
 
     const results = products.map(title => ({
       title,
